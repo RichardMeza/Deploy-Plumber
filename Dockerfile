@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
     libcairo2-dev \
     libxt-dev \
     libfontconfig1-dev \
+    libsodium-dev \
+    libgit2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN R -e "install.packages('plumber', repos='https://cloud.r-project.org')"
