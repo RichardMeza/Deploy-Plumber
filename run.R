@@ -1,4 +1,4 @@
-packages <- c("plumber", "jsonlite", "randomForest", "caret", "lattice")
+packages <- c("plumber", "tidymodels", "recipes", "tibble")
 
 for (p in packages) {
   if (!require(p, character.only = TRUE)) {
@@ -7,13 +7,17 @@ for (p in packages) {
   }
 }
 
-library(plumber)
+tryCatch({
+  pr <- plumb("plumber_precio_casa.R")
 
-pr <- plumb("plumber_precio_casa.R")
+  port <- as.numeric(Sys.getenv("PORT", "10000"))
 
-port <- as.numeric(Sys.getenv("PORT", "10000"))
-
-pr$run(
-  host = "0.0.0.0",
-  port = port
-)
+  pr$run(
+    host = "0.0.0.0",
+    port = port
+  )
+}, error = function(e) {
+  message("ERROR DETECTADO EN PRODUCCION:")
+  message(conditionMessage(e))
+  quit(status = 1)
+})
