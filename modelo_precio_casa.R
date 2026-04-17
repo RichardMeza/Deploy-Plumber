@@ -14,7 +14,7 @@ conflict_prefer("filter", "dplyr")
 data("SaratogaHouses", package = "mosaicData")
 datos <- SaratogaHouses
 head(datos)
-# Se renombran las columnas para que sean m醩 descriptivas
+# Se renombran las columnas para que sean m谩s descriptivas
 colnames(datos) <- c("precio", "metros_totales", "antiguedad", "precio_terreno",
                      "metros_habitables", "universitarios",
                      "dormitorios", "chimenea", "banios", "habitaciones",
@@ -25,11 +25,11 @@ head(datos)
 skim(datos)
 
 #------------------------------------------------------------------#
-#                  Selecci髇 de variables                  #
+#                  Selecci贸n de variables                  #
 #------------------------------------------------------------------#
-# Selecci髇 de variables
+# Selecci贸n de variables
 # ----------------------
-start <- Sys.time()  # Para calcular el tiempo de ejecuci髇
+start <- Sys.time()  # Para calcular el tiempo de ejecuci贸n
 doParallel::registerDoParallel(cores = parallel::detectCores() - 1) # Nucleos
 set.seed(2000)
 results <- rfe(precio ~ ., data = datos, sizes=c(1:15),
@@ -54,7 +54,7 @@ df <- datos1 %>% select(precio,precio_terreno,metros_habitables,banios,antigueda
                         metros_totales,dormitorios)
 
 #------------------------------------------------------------------#
-#                           FORMULACI覰 DE MODELOS                 #
+#                           FORMULACI脫N DE MODELOS                 #
 #------------------------------------------------------------------#
 
 # Paso 1: datos train y test
@@ -85,12 +85,12 @@ df_train_prep <- bake(transformer_fit, new_data = train_set)
 df_test_prep  <- bake(transformer_fit, new_data = test_set)
 glimpse(df_train_prep)
 super_model$preproc
-# Paso 4: Seleccionando los datos para validaci髇 cruzada
+# Paso 4: Seleccionando los datos para validaci贸n cruzada
 # ===============================================================
 set.seed(2000)
 cv_folds <- vfold_cv(data = train_set, v = 4, strata  = precio)
 
-# Paso 5: Formulaci髇 de algoritmos
+# Paso 5: Formulaci贸n de algoritmos
 # ==================================================================
 #------------------------------------------------------------------#
 #                         RANDOM FOREST                            #
@@ -103,7 +103,7 @@ mod_rf <- rand_forest( mode = "regression",
 # Flujo de trabajo
 wfw_rf <- workflow() %>% add_recipe(prepr) %>% add_model(mod_rf)
 
-start <- Sys.time()  # Para calcular el tiempo de ejecuci髇
+start <- Sys.time()  # Para calcular el tiempo de ejecuci贸n
 doParallel::registerDoParallel(cores = parallel::detectCores() - 1) # Nucleos
 
 # Tuning
@@ -117,10 +117,10 @@ grid_rf <- tune_grid(object = wfw_rf,
 Sys.time() - start
 doParallel::stopImplicitCluster()
 
-# resultados de la Validaci髇 cruzada
+# resultados de la Validaci贸n cruzada
 # --------------------------------------------
 
-# Selecci髇 del modelo final
+# Selecci贸n del modelo final
 # --------------------------
 mod_rf_fin <- finalize_model(x = mod_rf, 
               parameters = select_best(grid_rf, metric = "rmse")) %>%
@@ -137,22 +137,6 @@ metric_rf <- eval_metrics(pred_rf, truth = precio, estimate = .pred) %>% select(
 metric_rf
 
 #------------------------------
-setwd("C:/Users/User/Documents/UNALM/2024-1/CIENCIA DE DATOS I/Regresion_plomber/Regresion_casa_plomber")
-saveRDS(mod_rf_fin, "./modelo_precio_rf.rds")
-saveRDS(transformer_fit, "./transformer_var.rds")
-# Serialise model
-trained_model <- as.raw(serialize(mod_rf_fin, connection = NULL))
-# Leer el modelo final
-#---------------------
-model_pb <- readRDS("./modelo_precio_rf.rds")
-model_pb
+# saveRDS(mod_rf_fin, "./modelo_precio_rf.rds")
+# saveRDS(transformer_fit, "./transformer_var.rds")
 
-# Hacer predicciones
-nuevo <- data.frame(precio_terreno=50000,metros_habitables=1944,banios=1.0,antiguedad=10,
-                  metros_totales=0.92,dormitorios=3)
-
-transformer_var <- readRDS("./transformer_var.rds")
-nuevo1 <- bake(transformer_var, new_data = nuevo)
-
-final_predictions <- predict(model_pb, nuevo1)
-final_predictions
