@@ -1,5 +1,4 @@
-# Instalar paquetes si no existen
-packages <- c("plumber", "jsonlite", "randomForest", "caret")
+packages <- c("plumber", "jsonlite", "randomForest", "caret", "lattice")
 
 for (p in packages) {
   if (!require(p, character.only = TRUE)) {
