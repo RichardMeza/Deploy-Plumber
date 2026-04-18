@@ -39,4 +39,3 @@ function(precio_terreno, metros_habitables, banios,
 
   list(prediccion = as.numeric(pred$.pred))
 }
-
